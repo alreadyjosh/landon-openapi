@@ -6,7 +6,7 @@
   <br />
   <p>
     <a href="https://discord.gg/uTAwkPAnas"><img src="https://img.shields.io/badge/Discord-1.8k-brightgreen?style=flat-square&logo=discord&logoColor=white" alt="Discord Server" /></a>
-    <a href="https://www.npmjs.com/package/landon-openapi"><img src="https://img.shields.io/badge/npm-v1.0.0-blue?style=flat-square&logo=npm" alt="NPM Version" /></a>
+    <a href="https://www.npmjs.com/package/landon-openapi"><img src="https://img.shields.io/badge/npm-v1.0.1-blue?style=flat-square&logo=npm" alt="NPM Version" /></a>
     <a href="https://developers.roavflights.com/"><img src="https://img.shields.io/badge/API-ready-blueviolet?style=flat-square" alt="API Status" /></a>
   </p>
 </div>
