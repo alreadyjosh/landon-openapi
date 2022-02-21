@@ -1,2 +1,1 @@
-"# landon-openapi" 
-"# landon-openapi" 
+# Landon OpenAPI
