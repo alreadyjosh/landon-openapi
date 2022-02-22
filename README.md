@@ -1,7 +1,7 @@
 <div align="center">
   <br />
   <p>
-    <a href="https://discord.js.org"><img src="https://pileshare.com/u/edQNpM" width="546" alt="Landon-OpenAPI" /></a>
+    <a href="https://developers.roavhub.org/"><img src="https://pileshare.com/u/edQNpM" width="546" alt="Landon-OpenAPI" /></a>
   </p>
   <br />
   <p>
