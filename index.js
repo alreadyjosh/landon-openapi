@@ -1,102 +1,210 @@
-const axios = require("axios");
-const baseURL = "https://flights.roavhub.org/openapi";
+const axios = require("axios")
+const baseURL = "https://flights.roavhub.org/openapi"
 
 class Landon {
     constructor(options) {
-      this.apikey = options.apikey;
+        if (options?.apikey) this.apiKey = options.apikey
+        else throw new Error("An API key must be provided on initialization.")
+
+        this.request = axios.create({
+            baseURL: baseURL
+        })
     }
   
-    async getFlights() {
-        return new Promise((resolve, reject) => {
-            axios({
-                method: 'get',
-                url: `${baseURL}/flights/get`,
-                data: { apikey: this.apikey }
-            }).then(function (res) {
-                if(res.data.flights.length === 0) {
-                    return resolve("No Flights")
-                } else {
-                    return resolve(res.data.flights)
+    getFlights() {
+        return new Promise(async (resolve) => {
+            try {
+                const res = await this.request({
+                    method: 'get',
+                    url: "/flights/get",
+                    data: {
+                        apikey: this.apiKey
+                    }
+                })
+
+                if (res && res.data && res.data.flights && res.data.flights.length < 1) {
+                    return resolve({
+                        status: "success",
+                        data: []
+                    })
                 }
-            }).catch(function (err) {
-                let data = err.response.data;
-                if(data.status === "401" && data.message === "Unauthorized") {
-                    return resolve("Unauthorized. An invalid token was provided.")
-                } else if(data.status === "401" && data.message === "Missing Authorization Key") {
-                    return resolve("Missing API Key")
-                } else {
-                    return resolve("Internal Server Error")
+                else {
+                    return resolve({
+                        status: "success",
+                        data: res.data.flights
+                    })
                 }
-            });
-        });
+            }
+            catch (error) {
+                const data = error?.response?.data
+                const errors = {
+                    "Unauthorized": "Unauthorized. An invalid token was provided.",
+                    "Missing Authorization Key": "Missing API Key"
+                }
+
+                if (!error && !error.response && !error.response.data) {
+                    return resolve({
+                        status: "error",
+                        data: "Invalid Server Response"
+                    })
+                }
+                
+                if (data.status === "401") {
+                    if (errors.includes(data.message)) {
+                        return resolve({
+                            status: "error",
+                            data: errors[data.message]
+                        })
+                    }
+                    else {
+                        return resolve({
+                            status: "error",
+                            data: `Undocumented Error. Code: ${data?.status}`
+                        })
+                    }
+                }
+                else {
+                    return resolve({
+                        status: "error",
+                        data: "Internal Server Error"
+                    })
+                }
+            }
+        })
     }
 
-    async createFlight(options) {
-        return new Promise((resolve, reject) => {
-            axios({
-                method: 'post',
-                url: `${baseURL}/flights/create`,
-                data: {
-                    apikey: this.apikey,
-                    flightnumber: options.flightnumber,
-                    aircraft: options.aircraft,
-                    departure_airport: options.departure_airport,
-                    arrival_airport: options.arrival_airport,
-                    game_url: options.game_url,
-                    date: options.date,
-                    time: options.time,
-                    roavhub_ping: options.roavhub_ping
+    createFlight(options) {
+        return new Promise(async (resolve) => {
+            try {
+                const res = await this.request({
+                    method: 'post',
+                    url: "/flights/create",
+                    data: {
+                        apikey: this.apiKey,
+                        flightnumber: options?.flightnumber,
+                        aircraft: options?.aircraft,
+                        departure_airport: options?.departure_airport,
+                        arrival_airport: options?.arrival_airport,
+                        game_url: options?.game_url,
+                        date: options?.date,
+                        time: options?.time,
+                        roavhub_ping: options?.roavhub_ping
+                    }
+                })
+
+                if (res && res.data) {
+                    return resolve({
+                        status: "success",
+                        data: {
+                            message: res.data?.message,
+                            details: res.data?.details
+                        }
+                    })
                 }
-            }).then(function (res) {
-                resolve(`OK | ${res.data.details.flightID}`)
-            }).catch(function (err) {
-                let data = err.response.data;
-                if(data.status === "400" && data.message === "Missing Body Parameters") {
-                    return resolve("Missing Body Parameters. View the Developer Documentation to see which parameters are required. https://developers.roavflights.com")
-                } else if(data.status === "400" && data.message === "Invalid Roblox Game URL. It must start with https://roblox.com/") {
-                    return resolve("Invalid Roblox Game URL. It must start with https://roblox.com/")
-                } else if(data.status === "400" && data.message === "Invalid Time Format") {
-                    return resolve("Invalid Time Format. Example: 1:00am / 1:00pm\nAll times are in the UTC timezone")
-                } else if(data.status === "400" && data.message === "roavhub_ping must be boolean") {
-                    return resolve("\"roavhub_ping\" must be boolean (true/false)")
-                } else if(data.status === "401" && data.message === "Unauthorized") {
-                    return resolve("Unauthorized. An invalid token was provided.")
-                } else if(data.status === "401" && data.message === "Missing Authorization Key") {
-                    return resolve("Missing API Key")
-                } else {
-                    return resolve("Internal Server Error")
+            }
+            catch (error) {
+                const data = error?.response?.data
+                const errors = {
+                    "Missing Body Parameters": "View the Developer Documentation to see which parameters are required. https://developers.roavflights.com",
+                    "Invalid Roblox Game URL. It must start with https://roblox.com/": "Invalid Roblox Game URL. It must start with https://roblox.com/",
+                    "Invalid Time Format": "Invalid Time Format. Example: 1:00am / 1:00pm\nAll times are in the UTC timezone",
+                    "roavhub_ping must be boolean": "\"roavhub_ping\" must be boolean (true/false)",
+
+                    "Unauthorized": "Unauthorized. An invalid token was provided.",
+                    "Missing Authorization Key": "Missing API Key"
                 }
-            });
-        });
+
+                if (!error && !error.response && !error.response.data) {
+                    return resolve({
+                        status: "error",
+                        data: "Invalid Server Response"
+                    })
+                }
+                
+                if (data.status === "400" && data.status === "401") {
+                    if (errors.includes(data.message)) {
+                        return resolve({
+                            status: "error",
+                            data: errors[data.message]
+                        })
+                    }
+                    else {
+                        return resolve({
+                            status: "error",
+                            data: `Undocumented Error. Code: ${data?.status}`
+                        })
+                    }
+                }
+                else {
+                    return resolve({
+                        status: "error",
+                        data: "Internal Server Error"
+                    })
+                }
+            }
+        })
     }
 
-    async deleteFlight(options) {
-        return new Promise((resolve, reject) => {
-            axios({
-                method: 'post',
-                url: `${baseURL}/flights/delete`,
-                data: {
-                    apikey: this.apikey,
-                    flightID: options.flightID,
+    deleteFlight(options) {
+        return new Promise(async (resolve) => {
+            try {
+                const res = await this.request({
+                    method: 'post',
+                    url: "/flights/delete",
+                    data: {
+                        apikey: this.apiKey,
+                        flightID: options?.flightID
+                    }
+                })
+
+                if (res && res.data) {
+                    return resolve({
+                        status: "success",
+                        data: res?.data?.message
+                    })
                 }
-            }).then(function (res) {
-                resolve(`OK | Flight was deleted`)
-            }).catch(function (err) {
-                let data = err.response.data;
-                if(data.status === "400" && data.message === "Missing Body Parameters") {
-                    return resolve("Missing Body Parameters. View the Developer Documentation to see which parameters are required. https://developers.roavflights.com")
-                } else if(data.status === "404" && data.message === "Flight not found") {
-                    return resolve("Invalid FlightID. There's no entry for that FlightID in the Database.")
-                } else if(data.status === "401" && data.message === "Unauthorized") {
-                    return resolve("Unauthorized. An invalid token was provided.")
-                } else if(data.status === "401" && data.message === "Missing Authorization Key") {
-                    return resolve("Missing API Key")
-                } else {
-                    return resolve("Internal Server Error")
+            }
+            catch (error) {
+                const data = error?.response?.data
+                const errors = {
+                    "Missing Body Parameters": "View the Developer Documentation to see which parameters are required. https://developers.roavflights.com",
+
+                    "Flight not found": "Invalid FlightID. There's no entry for that FlightID in the Database.",
+
+                    "Unauthorized": "Unauthorized. An invalid token was provided.",
+                    "Missing Authorization Key": "Missing API Key"
                 }
-            });
-        });
+
+                if (!error && !error.response && !error.response.data) {
+                    return resolve({
+                        status: "error",
+                        data: "Invalid Server Response"
+                    })
+                }
+                
+                if (data.status === "400" && data.status === "401" || data.status === "404") {
+                    if (errors.includes(data.message)) {
+                        return resolve({
+                            status: "error",
+                            data: errors[data.message]
+                        })
+                    }
+                    else {
+                        return resolve({
+                            status: "error",
+                            data: `Undocumented Error. Code: ${data?.status}`
+                        })
+                    }
+                }
+                else {
+                    return resolve({
+                        status: "error",
+                        data: "Internal Server Error"
+                    })
+                }
+            }
+        })
     }
 }
   
-module.exports = Landon;
+module.exports = Landon
