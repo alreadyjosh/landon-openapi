@@ -17,9 +17,7 @@ class Landon {
                 const res = await this.request({
                     method: 'get',
                     url: "/flights/get",
-                    data: {
-                        apikey: this.apiKey
-                    }
+                    headers: { "authorization": this.apiKey },
                 })
 
                 if (res && res.data && res.data.flights && res.data.flights.length < 1) {
@@ -79,8 +77,8 @@ class Landon {
                 const res = await this.request({
                     method: 'post',
                     url: "/flights/create",
+                    headers: { "authorization": this.apiKey },
                     data: {
-                        apikey: this.apiKey,
                         flightnumber: options?.flightnumber,
                         aircraft: options?.aircraft,
                         departure_airport: options?.departure_airport,
@@ -151,8 +149,8 @@ class Landon {
                 const res = await this.request({
                     method: 'post',
                     url: "/flights/delete",
+                    headers: { "authorization": this.apiKey },
                     data: {
-                        apikey: this.apiKey,
                         flightID: options?.flightID
                     }
                 })
